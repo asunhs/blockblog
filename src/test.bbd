@@ -1,0 +1,11 @@
+#Default
+내용을 적으면 되는 그냥 그런 블록
+
+#BigImage
+images/test.jpg
+큰 이미지가 들어가고 설명이 있는 블록
+
+#Code:javascript
+function () {
+    var javascript;
+}
