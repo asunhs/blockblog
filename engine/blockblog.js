@@ -1,24 +1,42 @@
 
+function BlockBlog() {
+    this.rules = {};
+}
 
+BlockBlog.prototype = {
+    addRule: function (name, fn) {
+        this.rules[name] = fn;
+    },
+    loadRule: function (path) {
+        var loader = require(path);
+        return loader(this);
+    },
+    run: function (name, block) {
+        return this.rules[name] && this.rules[name](block);
+    }
+};
 
+var blockblog = new BlockBlog(),
+    path = require('path'),
+    fs = require('fs'),
+    rules = fs.readdir('./engine/rules', function (err, files) {
+        if (err) throw err;
+
+        files.forEach(function (file) {
+            blockblog.loadRule('./rules/' + file);
+        });
+    });
 
 module.exports = function (grunt) {
 
-    var path = require('path');
-    var fs = require('fs'),
-        stack = [];
-
-
+    var stack = [];
 
     function toHtml(doc) {
         var lines = doc.toString().split('\r\n');
 
-        lines.map(function (line) {
-
-        });
-
-
-        return lines.join('');
+        return lines.map(function (line) {
+            return blockblog.run('Default', line);
+        }).join('\r\n');
     }
 
 
@@ -56,7 +74,6 @@ module.exports = function (grunt) {
             return filepath;
         }
     }
-
 
     grunt.registerMultiTask('blockblog', 'Convert to Block-blog', function () {
 
