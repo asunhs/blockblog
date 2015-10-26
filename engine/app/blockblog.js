@@ -1,24 +1,27 @@
 var path = require('path');
 var fs = require('fs');
+var Tracker = require('./tracker.js');
 
-
-function parse(result, line, blockblog) {
-    result.push(blockblog.run('Default', line));
-
-
-
-    return result;
-}
 
 
 
 
 function toHtml(doc, blockblog) {
-    var lines = doc.toString().split('\r\n');
+    var lines = doc.toString().split('\r\n'),
+        result = [],
+        tracker = new Tracker(function (type, block) {
+            console.log(type);
+            result.push(blockblog.run(type, block));
+        }),
+        i;
 
-    return lines.reduce(function (result, line) {
-        return parse(result, line, blockblog);
-    }, []).join('\r\n');
+    for (i=0; i<lines.length; ++i) {
+        tracker.append(lines[i]);
+    }
+
+    tracker.flush();
+
+    return result.join('\r\n');
 }
 
 
